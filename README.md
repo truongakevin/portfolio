@@ -1,5 +1,6 @@
-# kevinatruong.com astro portfolio
-this is my portfolio site designed in figma and developed with astro
+# kevinatruong.com portfolio
+
+This is my portfolio site, designed in Figma and developed with Astro.
 
 <p align="center">
   <img src="webpage_screenshot.png" alt="main page" width="1000"/>
@@ -11,26 +12,23 @@ this is my portfolio site designed in figma and developed with astro
 ## Project Structure
 
 ```text
-astro-portfolio/
-    ├── public
-    │   ├── art                 # Folder containing art assets (images, drawings, etc.)
-    │   ├── fonts               # Directory for font files used throughout the project
-    │   ├── icon                # Directory for icon assets
-    │   └── info                # Folder containing assets from info page
-    └── src
-        ├── components          # Directory for reusable components like Nav.astro
-        ├── layouts             # Folder for layout component
-        ├── pages               # Directory containing individual page components like index, art, info, and projects page
-        └── scripts             # Folder for JavaScript or other scripts used in the project
+portfolio/
+├── frontend/                  # Astro website and static assets
+├── backend/                   # Contact, Spotify, and TikTok services
+├── deployment/systemd/       # Versioned Linux service definitions
+├── docs/                     # Architecture and operating notes
+└── .github/workflows/        # Direct-to-main deployments
 ```
 
 ## Installation
 
 1. Clone the repository:
-    `git clone https://github.com/your-username/astro-portfolio.git`
-2. Install dependancies
+    `git clone https://github.com/truongakevin/portfolio.git`
+2. Enter the frontend directory
+    `cd portfolio/frontend`
+3. Install dependencies
     `npm install`
-3. Starts local dev server
+4. Start the local development server
     `npm run dev`
 
 ### Usage

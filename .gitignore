@@ -32,4 +32,8 @@ public/fonts/Rowdies
 # public/info/
 
 #tiktoks
-/backend/
+/backend/tiktoks/
+/backend/depoy.sh
+
+# unpublished local drafts
+/drafts/

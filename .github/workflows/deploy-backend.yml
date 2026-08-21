@@ -1,0 +1,102 @@
+name: Deploy Portfolio backend
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "backend/**"
+      - "deployment/systemd/**"
+      - ".github/workflows/deploy-backend.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: portfolio-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy backend services
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: production
+    env:
+      SERVER_HOST: ${{ vars.SERVER_HOST }}
+      SERVER_PORT: ${{ vars.SERVER_PORT }}
+      SERVER_USER: ${{ vars.SERVER_USER }}
+
+    steps:
+      - name: Configure SSH
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
+        run: |
+          install -d -m 700 ~/.ssh
+          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
+          printf '%s\n' "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/id_ed25519 ~/.ssh/known_hosts
+
+      - name: Update source and restart services
+        run: |
+          ssh -i ~/.ssh/id_ed25519 -p "${SERVER_PORT}" \
+            "${SERVER_USER}@${SERVER_HOST}" 'bash -se' <<'REMOTE'
+          set -eu
+          project=/srv/kevin/projects/portfolio
+          if [ ! -d "$project/.git" ]; then
+            rmdir "$project" 2>/dev/null || true
+            git clone --branch main --single-branch \
+              https://github.com/truongakevin/portfolio.git "$project"
+          else
+            git -C "$project" fetch origin main
+            git -C "$project" checkout main
+            git -C "$project" merge --ff-only origin/main
+          fi
+
+          cd "$project/backend"
+          /home/kevintruong/.nvm/versions/node/v22.5.1/bin/npm ci --omit=dev
+          ln -sfn /srv/kevin/config/env/portfolio.env .env
+          ln -sfn /srv/kevin/data/portfolio/tiktok tiktoks
+
+          sudo ln -sfn \
+            "$project/deployment/systemd/portfolio-contact.service" \
+            /etc/systemd/system/portfolio-contact.service
+          sudo ln -sfn \
+            "$project/deployment/systemd/portfolio-spotify.service" \
+            /etc/systemd/system/portfolio-spotify.service
+          sudo ln -sfn \
+            "$project/deployment/systemd/portfolio-tiktok.service" \
+            /etc/systemd/system/portfolio-tiktok.service
+
+          sudo systemctl daemon-reload
+          sudo systemctl enable portfolio-contact.service portfolio-spotify.service portfolio-tiktok.service
+          sudo systemctl disable --now tiktok.service 2>/dev/null || true
+          sudo systemctl restart portfolio-contact.service portfolio-spotify.service portfolio-tiktok.service
+
+          for port in 33322 59011 8855; do
+            ready=false
+            for attempt in 1 2 3 4 5; do
+              if curl --silent --output /dev/null "http://127.0.0.1:${port}/"; then
+                ready=true
+                break
+              fi
+              sleep 2
+            done
+            if [ "$ready" != true ]; then
+              sudo systemctl status portfolio-contact.service portfolio-spotify.service portfolio-tiktok.service --no-pager
+              exit 1
+            fi
+          done
+          REMOTE
+
+      - name: Verify public proxy routes
+        run: |
+          for route in contact spotify tiktok; do
+            status=$(curl --silent --output /dev/null --write-out '%{http_code}' \
+              "https://kevinatruong.com/api/${route}")
+            test "$status" != "502"
+            test "$status" != "503"
+            test "$status" != "504"
+          done

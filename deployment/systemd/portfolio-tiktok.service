@@ -1,0 +1,13 @@
+[Unit]
+Description=Portfolio TikTok archive backend
+After=network.target
+
+[Service]
+User=kevintruong
+Group=www-data
+WorkingDirectory=/srv/kevin/projects/portfolio/backend
+ExecStart=/home/kevintruong/.nvm/versions/node/v22.5.1/bin/node /srv/kevin/projects/portfolio/backend/tiktok.js
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
