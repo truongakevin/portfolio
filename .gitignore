@@ -31,8 +31,8 @@ public/fonts/Rowdies
 # public/fonts/
 # public/info/
 
-#tiktoks
-/backend/tiktoks/
+# TikTok runtime data symlink
+/backend/tiktoks
 /backend/depoy.sh
 
 # unpublished local drafts
