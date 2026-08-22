@@ -54,6 +54,6 @@ app.post('/contact', (req, res) => {
     });
 });
 
-app.listen(PORT, () => {
+app.listen(PORT, '127.0.0.1', () => {
     console.log(`Server is running on http://localhost:${PORT}`);
 });

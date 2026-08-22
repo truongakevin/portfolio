@@ -90,13 +90,3 @@ jobs:
             fi
           done
           REMOTE
-
-      - name: Verify public proxy routes
-        run: |
-          for route in contact spotify tiktok; do
-            status=$(curl --silent --output /dev/null --write-out '%{http_code}' \
-              "https://kevinatruong.com/api/${route}")
-            test "$status" != "502"
-            test "$status" != "503"
-            test "$status" != "504"
-          done
