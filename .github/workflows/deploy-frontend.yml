@@ -13,7 +13,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: portfolio-production
+  group: portfolio-frontend-production
   cancel-in-progress: false
 
 jobs:

@@ -14,7 +14,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: portfolio-production
+  group: portfolio-backend-production
   cancel-in-progress: false
 
 jobs:
@@ -56,7 +56,8 @@ jobs:
           fi
 
           cd "$project/backend"
-          /home/kevintruong/.nvm/versions/node/v22.5.1/bin/npm ci --omit=dev
+          export PATH="/home/kevintruong/.nvm/versions/node/v22.5.1/bin:$PATH"
+          npm ci --omit=dev
           ln -sfn /srv/kevin/config/env/portfolio.env .env
           ln -sfn /srv/kevin/data/portfolio/tiktok tiktoks
 
