@@ -7,6 +7,7 @@ on:
     paths:
       - "backend/**"
       - "deployment/systemd/**"
+      - "deployment/nginx/**"
       - ".github/workflows/deploy-backend.yml"
   workflow_dispatch:
 
@@ -29,6 +30,22 @@ jobs:
       SERVER_USER: ${{ vars.SERVER_USER }}
 
     steps:
+      - name: Check out source
+        uses: actions/checkout@v7.0.1
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7.0.0
+        with:
+          node-version: "22.22.1"
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Test backend
+        working-directory: backend
+        run: |
+          npm ci
+          npm test
+
       - name: Configure SSH
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
@@ -56,7 +73,7 @@ jobs:
           fi
 
           cd "$project/backend"
-          export PATH="/home/kevintruong/.nvm/versions/node/v22.5.1/bin:$PATH"
+          export PATH="/srv/kevin/runtime/node/v22.22.1/bin:$PATH"
           npm ci --omit=dev
           ln -sfn /srv/kevin/config/env/portfolio.env .env
           ln -sfn /srv/kevin/data/portfolio/tiktok tiktoks
@@ -75,11 +92,13 @@ jobs:
           sudo systemctl enable portfolio-contact.service portfolio-spotify.service portfolio-tiktok.service
           sudo systemctl disable --now tiktok.service 2>/dev/null || true
           sudo systemctl restart portfolio-contact.service portfolio-spotify.service portfolio-tiktok.service
+          sudo nginx -t
+          sudo systemctl reload nginx
 
           for port in 33322 59011 8855; do
             ready=false
             for attempt in 1 2 3 4 5; do
-              if curl --silent --output /dev/null "http://127.0.0.1:${port}/"; then
+              if curl --fail --silent --output /dev/null "http://127.0.0.1:${port}/health"; then
                 ready=true
                 break
               fi

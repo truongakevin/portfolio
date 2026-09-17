@@ -10,6 +10,7 @@ const PORT = process.env.PORT || 59011;
 
 // Add CORS middleware (this will allow all origins by default)
 app.use(cors());
+app.get('/health', (_req, res) => res.sendStatus(200));
 
 // Spotify API credentials
 const SPOTIFY_CLIENT_ID = process.env.SPOTIFY_CLIENT_ID;
@@ -19,6 +20,8 @@ const SPOTIFY_REDIRECT_URI = process.env.SPOTIFY_REDIRECT_URI;
 // In-memory storage for access token, refresh token, and expiration time
 let ACCESS_TOKEN = null;
 let ACCESS_TOKEN_EXPIRATION = null;
+let cachedData = null;
+let cachedAt = 0;
 
 // Callback URI and scopes
 const SCOPE = 'user-top-read user-read-currently-playing user-read-playback-state';
@@ -102,22 +105,14 @@ app.get('/spotify/callback', async (req, res) => {
 
 // Route to get Spotify data with middleware
 app.get('/spotify/data', checkAccessToken, async (req, res) => {
-  console.log("Retrieving Data");
+  res.set('Cache-Control', 'public, max-age=15');
+  if (cachedData && Date.now() - cachedAt < 15000) return res.json(cachedData);
 
   try {
-    const shuffleArray = (array) => {
-      for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]]; // Swap elements
-      }
-      return array;
-    };
-
     const [
       userProfile,
       userTopArtists,
       userTopTracks,
-      userPlaylists,
       currentlyPlaying
     ] = await Promise.all([
       axios.get('https://api.spotify.com/v1/me', {
@@ -129,19 +124,15 @@ app.get('/spotify/data', checkAccessToken, async (req, res) => {
       axios.get('https://api.spotify.com/v1/me/top/tracks?time_range=short_term&limit=10', {
         headers: { Authorization: `Bearer ${ACCESS_TOKEN}` },
       }),
-      axios.get('https://api.spotify.com/v1/me/playlists?limit=50', {
-        headers: { Authorization: `Bearer ${ACCESS_TOKEN}` },
-      }),
       axios.get('https://api.spotify.com/v1/me/player/currently-playing', {
         headers: { Authorization: `Bearer ${ACCESS_TOKEN}` },
       }),
     ]);
 
-    res.json({
+    cachedData = {
       user_profile: {
         id: userProfile.data.id,
         display_name: userProfile.data.display_name,
-        email: userProfile.data.email,
         profile_image: userProfile.data.images[0] ? userProfile.data.images[0].url : null, // Get the first profile image URL if available
         followers: userProfile.data.followers.total,
       },
@@ -160,14 +151,7 @@ app.get('/spotify/data', checkAccessToken, async (req, res) => {
         album_image: track.album.images[0] ? track.album.images[0].url : null, // Get the first album image URL if available
         duration_ms: track.duration_ms,
       })),
-      user_playlists: shuffleArray(userPlaylists.data.items.map(playlist => ({
-        id: playlist.id,
-        name: playlist.name,
-        description: playlist.description,
-        image: playlist.images.length ? playlist.images[0].url : null, // Get the first image URL if available
-        tracks_count: playlist.tracks.total,
-      }))).slice(0, 5), // Limit to 5 random playlists
-      currently_playing: currentlyPlaying.data ? {
+      currently_playing: currentlyPlaying.data?.item ? {
         is_playing: currentlyPlaying.data.is_playing,
         track: {
           id: currentlyPlaying.data.item.id,
@@ -179,7 +163,9 @@ app.get('/spotify/data', checkAccessToken, async (req, res) => {
           duration_ms: currentlyPlaying.data.item.duration_ms,
         },
       } : null // Return null if currently playing data is not available
-    });
+    };
+    cachedAt = Date.now();
+    res.json(cachedData);
   } catch (error) {
     console.error('Error retrieving data from Spotify:', error.response ? error.response.data : error.message);
     res.status(500).send('Error retrieving data from Spotify');

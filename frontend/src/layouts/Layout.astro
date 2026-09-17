@@ -2,7 +2,7 @@
 import "../styles/global.css";
 import Nav from '../components/Nav.astro';
 const currentPath = Astro.url.pathname;
-const { title, noPadding = false } = Astro.props;
+const { title } = Astro.props;
 
 ---
 
@@ -24,8 +24,9 @@ const { title, noPadding = false } = Astro.props;
 		<!-- Google tag (gtag.js) -->
 		<script async src="https://www.googletagmanager.com/gtag/js?id=G-V9BWSDY0JS"></script>
 		<script>
-			window.dataLayer = window.dataLayer || [];
-			function gtag(){dataLayer.push(arguments);}
+				const dataLayer: unknown[][] = (window as Window & { dataLayer?: unknown[][] }).dataLayer ?? [];
+				(window as Window & { dataLayer?: unknown[][] }).dataLayer = dataLayer;
+				function gtag(...args: unknown[]) { dataLayer.push(args); }
 			gtag('js', new Date());
 			gtag('config', 'G-V9BWSDY0JS');
 		</script>

@@ -7,7 +7,7 @@ User=kevintruong
 Group=www-data
 WorkingDirectory=/srv/kevin/projects/portfolio/backend
 EnvironmentFile=/srv/kevin/config/env/portfolio.env
-ExecStart=/home/kevintruong/.nvm/versions/node/v22.5.1/bin/node /srv/kevin/projects/portfolio/backend/spotify.js
+ExecStart=/srv/kevin/runtime/node/v22.22.1/bin/node /srv/kevin/projects/portfolio/backend/spotify.js
 Restart=always
 
 [Install]

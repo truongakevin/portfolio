@@ -26,10 +26,12 @@ portfolio/
     `git clone https://github.com/truongakevin/portfolio.git`
 2. Enter the frontend directory
     `cd portfolio/frontend`
-3. Install dependencies
-    `npm install`
-4. Start the local development server
-    `npm run dev`
+3. Select Node 22.22.1 with `nvm use` from the repository root.
+4. Install dependencies in `frontend/` with `npm ci`.
+5. Run `npm run check` and `npm run build` to verify the site.
+6. Start the local development server with `npm run dev`.
+
+The backend lives in `backend/`. Run `npm ci && npm test` there. Production credentials and TikTok archive data live only on the Linux server. Deployment and route ownership are documented in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
 ### Usage
 

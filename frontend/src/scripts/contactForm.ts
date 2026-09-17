@@ -4,8 +4,9 @@ const emailInput = document.getElementById('email') as HTMLInputElement | null;
 const messageInput = document.getElementById('message') as HTMLTextAreaElement | null;
 const submitButton = document.getElementById('submitButton') as HTMLButtonElement | null;
 const title = document.getElementById('title') as HTMLElement | null;
+const contactStatus = document.getElementById('contactStatus') as HTMLElement | null;
 
-if (contactForm && nameInput && emailInput && messageInput && submitButton && title) {
+if (contactForm && nameInput && emailInput && messageInput && submitButton && title && contactStatus) {
   contactForm.addEventListener('submit', async (e: Event) => {
     e.preventDefault();
 
@@ -15,25 +16,28 @@ if (contactForm && nameInput && emailInput && messageInput && submitButton && ti
       message: messageInput.value,
     };
 
-    submitButton.innerHTML = `<img class="w-5 h-5 m-auto" src="https://global.discourse-cdn.com/sitepoint/original/3X/e/3/e352b26bbfa8b233050087d6cb32667da3ff809c.gif" alt="Loading" />`;
-    // submitButton.innerHTML = `<img class="w-20 h-20" src="https://global.discourse-cdn.com/sitepoint/original/3X/e/3/e352b26bbfa8b233050087d6cb32667da3ff809c.gif" alt="Loading"/>`;
+    submitButton.textContent = 'SENDING';
     submitButton.disabled = true;
+    contactStatus.textContent = '';
 
     try {
-      const response = await fetch('https://kevinatruong.com/api/contact', {
+      const response = await fetch('/api/contact', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(formData),
       });
-      const result = await response.text();
-      // Optionally handle result
+      if (!response.ok) throw new Error(`Contact request failed (${response.status})`);
+      title.textContent = 'THANK YOU FOR YOUR MESSAGE.';
+      contactForm.reset();
+      contactForm.style.display = 'none';
     } catch (error) {
-      console.error('Error:', error);
+      console.error('Contact request failed:', error);
+      contactStatus.textContent = 'Your message was not sent. Please try again.';
     } finally {
-      title.innerHTML = 'THANK YOU FOR YOUR MESSAGE.';
-      contactForm.innerHTML = '';
+      submitButton.textContent = 'SEND';
+      submitButton.disabled = false;
     }
   });
 }

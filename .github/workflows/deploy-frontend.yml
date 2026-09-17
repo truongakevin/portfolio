@@ -32,7 +32,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v7.0.0
         with:
-          node-version: "22"
+          node-version: "22.22.1"
           cache: npm
           cache-dependency-path: frontend/package-lock.json
 
@@ -41,6 +41,9 @@ jobs:
 
       - name: Build static frontend
         run: npm run build
+
+      - name: Check Astro types
+        run: npm run check
 
       - name: Upload static build
         uses: actions/upload-artifact@v7.0.1
@@ -80,7 +83,7 @@ jobs:
 
       - name: Deploy static frontend
         run: |
-          rsync -az --delete \
+          rsync -az \
             -e "ssh -i ~/.ssh/id_ed25519 -p ${SERVER_PORT}" \
             artifact/ \
             "${SERVER_USER}@${SERVER_HOST}:/srv/kevin/web/kevinatruong.com/"

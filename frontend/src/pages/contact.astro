@@ -9,22 +9,23 @@ import Layout from '../layouts/Layout.astro';
 		<form id="contactForm" method="POST" class="flex flex-col gap-2">
 			<div class="flex flex-col gap-1">
 				<label for="name" class="block"><h4>NAME</h4></label>
-				<input autocomplete="off" type="text" id="name" name="name" required class="w-[clamp(18rem,50vw,100rem)] h-[clamp(2rem,5vh,100rem)] px-2 bg-dark text-light focus:outline-none" />
+					<input autocomplete="name" type="text" id="name" name="name" required maxlength="100" class="w-[clamp(18rem,50vw,100rem)] h-[clamp(2rem,5vh,100rem)] px-2 bg-dark text-light focus:outline-none" />
 			</div>
 
 			<div class="flex flex-col gap-1">
 				<label for="email" class="block"><h4>EMAIL</h4></label>
-				<input autocomplete="on" type="text" id="email" name="email" required class="w-[clamp(18rem,50vw,100rem)] h-[clamp(2rem,5vh,100rem)] px-2 bg-dark text-light focus:outline-none" />
+					<input autocomplete="email" type="email" id="email" name="email" required maxlength="254" class="w-[clamp(18rem,50vw,100rem)] h-[clamp(2rem,5vh,100rem)] px-2 bg-dark text-light focus:outline-none" />
 			</div>
 
 			<div class="flex flex-col gap-1">
 				<label for="message" class="block"><h4>MESSAGE</h4></label>
-				<textarea id="message" name="message" required class="w-[clamp(20rem,60vw,150rem)] h-[clamp(10rem,30vh,100rem)] p-2 bg-dark text-light focus:outline-none"></textarea>
+					<textarea id="message" name="message" required maxlength="5000" class="w-[clamp(20rem,60vw,150rem)] h-[clamp(10rem,30vh,100rem)] p-2 bg-dark text-light focus:outline-none"></textarea>
 			</div>
 
 			<button type="submit" id="submitButton" class="w-24 h-10 bg-dark text-light">
 				<h5>SEND</h5>
-			</button>
+				</button>
+				<p id="contactStatus" role="status" aria-live="polite"></p>
 		</form>
 
 		<script src="../scripts/contactForm.ts"></script>

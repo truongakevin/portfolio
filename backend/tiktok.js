@@ -6,6 +6,7 @@ const cors = require('cors');
 const app = express();
 const PORT = 8855;
 app.use(cors());
+app.get('/health', (_req, res) => res.sendStatus(200));
 
 // Load metadata
 function generateMetadataFromArchive() {
