@@ -33,7 +33,7 @@ No real environment file or TikTok archive data is committed.
 - Spotify data: `https://kevinatruong.com/api/spotify/data`
 - TikTok backend: `https://kevinatruong.com/api/tiktok`
 
-The contact POST and Spotify data GET are public so the public pages work. Spotify authorization routes, TikTok, TTS, and the other private APIs stay LAN-only. Contact requests are limited in the application to five per client IP per ten minutes. The contact service does not log submitted messages.
+The contact POST and Spotify data GET are public so the public pages work. Spotify authorization routes, TikTok, TTS, and the other private APIs stay LAN-only. Contact delivery requires same-site form metadata, rejects a hidden honeypot field and implausible form ages, and is limited to five requests per client IP per ten minutes plus ten total deliveries per hour. The contact service does not log submitted messages.
 
 Use Node 22.22.1 for development and the Linux services. Run `npm ci && npm run build && npm run check` in `frontend/`, and `npm ci && npm test` in `backend/` before deployment. The deploy workflows run these checks, then verify the three backend `/health` endpoints. Frontend deployment does not delete files already on the server.
 
