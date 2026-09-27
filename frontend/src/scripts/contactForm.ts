@@ -5,8 +5,12 @@ const messageInput = document.getElementById('message') as HTMLTextAreaElement |
 const submitButton = document.getElementById('submitButton') as HTMLButtonElement | null;
 const title = document.getElementById('title') as HTMLElement | null;
 const contactStatus = document.getElementById('contactStatus') as HTMLElement | null;
+const websiteInput = document.getElementById('website') as HTMLInputElement | null;
+const formStartedAtInput = document.getElementById('formStartedAt') as HTMLInputElement | null;
 
-if (contactForm && nameInput && emailInput && messageInput && submitButton && title && contactStatus) {
+if (contactForm && nameInput && emailInput && messageInput && submitButton && title && contactStatus && websiteInput && formStartedAtInput) {
+  formStartedAtInput.value = String(Date.now());
+
   contactForm.addEventListener('submit', async (e: Event) => {
     e.preventDefault();
 
@@ -14,6 +18,8 @@ if (contactForm && nameInput && emailInput && messageInput && submitButton && ti
       name: nameInput.value,
       email: emailInput.value,
       message: messageInput.value,
+      website: websiteInput.value,
+      formStartedAt: Number(formStartedAtInput.value),
     };
 
     submitButton.textContent = 'SENDING';
